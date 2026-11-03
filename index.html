@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>lyra store</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--y:#fdeaa0;--p:#f6b3cf;--g:#c4ebd3;--pd:#c02a78;--gd:#1f7a55;--ink:#4b2a45;--mu:#85687c;--bg:#fffcf3;--card:#fff;--ln:#efcfa8;--side:#fff1bd}
+@media(prefers-color-scheme:dark){:root{--y:#4a3f16;--p:#5a2b46;--g:#1f4535;--pd:#ff8ec2;--gd:#6fd8a4;--ink:#f6e8ee;--mu:#c0a8b4;--bg:#1d1a14;--card:#2a251c;--ln:#5a4a30;--side:#2b2516}}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--pd);outline-offset:2px}
+.app{display:grid;grid-template-columns:200px 1fr;min-height:100vh}
+aside{background:var(--side);padding:18px 12px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{font-weight:800;font-size:17px;padding:4px 8px 14px}
+.nb{display:flex;gap:10px;align-items:center;background:none;border:0;border-radius:14px;padding:10px 12px;font-weight:600;color:var(--mu);text-align:left;width:100%}
+.nb.on{background:var(--p);color:#4b2a45}
+main{padding:22px 20px 40px;background-image:radial-gradient(var(--ln) 1px,transparent 1px);background-size:18px 18px}
+.mb{display:none;font-weight:800;margin-bottom:6px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+h1{margin:0;font-size:24px;font-weight:800;flex:1}
+.btn{background:var(--p);color:#4b2a45;border:0;border-radius:999px;padding:10px 18px;font-weight:700}
+.btn.o{background:var(--card);border:1.5px solid var(--pd);color:var(--pd)}
+.btn.g{background:var(--g);color:var(--gd)}
+.btn.s{padding:7px 13px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.st{border:1.5px dashed var(--ln);border-radius:18px;padding:14px;background:var(--card)}
+.st small{color:var(--mu);font-weight:600}.st b{display:block;font-size:21px;margin-top:4px;overflow-wrap:anywhere}
+.st:nth-child(3n+1){background:var(--y)}.st:nth-child(3n+2){background:var(--p)}.st:nth-child(3n){background:var(--g)}
+h2{font-size:17px;margin:18px 0 10px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.oc{border:1.5px dashed var(--ln);border-radius:20px;padding:14px;background:var(--card)}
+.r1{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:17px}
+.r2{color:var(--mu);margin:2px 0 10px;font-size:14px}
+.dt{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;color:var(--mu)}.dt b{color:var(--ink);font-size:14px}.dt .w{grid-column:1/-1}.dt .pf{font-weight:700;color:var(--gd)}
+.nt{margin:8px 0 0;font-size:13px;color:var(--mu)}
+.ak{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--bg);border:1.5px solid var(--ln);font-size:13px}
+.akh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;margin-bottom:4px}
+.akr{display:grid;grid-template-columns:64px 1fr auto;gap:8px;align-items:center;padding:4px 0;color:var(--mu)}
+.akr b{color:var(--ink);font-size:14px;overflow-wrap:anywhere;min-width:0}
+.akb{display:flex;gap:4px}
+.lk{background:none;border:0;padding:6px 4px;font-size:12.5px;font-weight:700;color:var(--pd)}
+.fs{margin-top:14px;padding-top:4px;border-top:1.5px dashed var(--ln)}.fs h3{margin:10px 0 0;font-size:15px}.fs .nt{margin-top:2px}
+.bt{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;white-space:nowrap}
+.chip.act,.chip.done{background:var(--g);color:var(--gd)}.chip.soon{background:var(--y);color:var(--ink)}.chip.today{background:var(--p);color:#4b2a45}.chip.exp{background:var(--card);border:1px solid var(--pd);color:var(--pd)}
+.fb{display:flex;gap:10px;margin-bottom:14px}.fb>*{flex:1;min-width:0}
+.f{background:var(--card);border:1.5px solid var(--ln);border-radius:14px;padding:10px 12px;width:100%}
+.empty{text-align:center;color:var(--mu);border:1.5px dashed var(--ln);border-radius:20px;padding:36px 14px;background:var(--card)}
+.ov{position:fixed;inset:0;background:rgba(40,25,20,.5);display:grid;place-items:center;padding:14px;z-index:20;overflow:auto}
+.ov[hidden]{display:none}
+.box{background:var(--card);border-radius:24px;padding:20px;width:100%;max-width:460px;max-height:96vh;overflow:auto}
+.box h2{margin:0 0 8px}.box label{display:block;font-weight:700;font-size:13px;margin:10px 0 4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.panel{background:var(--card);border:1.5px dashed var(--ln);border-radius:20px;padding:16px;margin-bottom:14px}.panel h2{margin-top:0}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed var(--ln);font-size:14px}.row:last-child{border:0}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90vw;text-align:center}.toast.on{opacity:1}
+#pr{display:none}
+@media print{body>*:not(#pr){display:none!important}#pr{display:block;color:#000;font-size:11px}#pr table{width:100%;border-collapse:collapse}#pr td,#pr th{border:1px solid #999;padding:4px;text-align:left}}
+@media(max-width:760px){
+.app{display:block}
+aside{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:5;border-top:2px solid var(--ln);gap:2px}
+.brand{display:none}.mb{display:block}
+.nb{flex-direction:column;gap:1px;padding:6px 2px;font-size:10.5px;justify-content:center;text-align:center;flex:1;min-width:0}
+main{padding:calc(14px + env(safe-area-inset-top,0px)) 14px 100px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside><div class="brand">🍀 lyra store</div><div id="nav" style="display:contents"></div></aside>
+  <main><div class="mb">🍀 lyra store</div><header><h1 id="ttl"></h1><button class="btn" id="add">+ Tambah Order</button></header><section id="v"></section></main>
+</div>
+
+<div class="ov" id="md" hidden><div class="box">
+  <h2 id="mt">Tambah Order</h2>
+  <label for="f-app">Nama aplikasi</label><input class="f" id="f-app" list="apps" placeholder="Netflix, Canva, ..."><datalist id="apps"></datalist>
+  <div class="g2"><div><label for="f-cus">Customer</label><input class="f" id="f-cus" list="cl" placeholder="Nama"><datalist id="cl"></datalist></div><div><label for="f-ph">No. WhatsApp</label><input class="f" id="f-ph" inputmode="tel" placeholder="08xx"></div></div>
+  <label for="f-sup">Supplier</label><select class="f" id="f-sup"></select>
+  <div class="g2"><div><label for="f-ord">Tanggal order</label><input class="f" type="date" id="f-ord"></div>
+  <div><label for="f-dur">Durasi</label><select class="f" id="f-dur"><option value="7">7 hari</option><option value="14">14 hari</option><option value="30" selected>30 hari</option><option value="60">60 hari</option><option value="90">90 hari</option><option value="180">180 hari</option><option value="365">365 hari</option></select></div></div>
+  <label for="f-ren">Tanggal renew</label><input class="f" type="date" id="f-ren">
+  <div class="g2"><div><label for="f-pr">Harga jual (Rp)</label><input class="f" id="f-pr" inputmode="numeric" placeholder="0"></div><div><label for="f-co">Modal (Rp)</label><input class="f" id="f-co" inputmode="numeric" placeholder="0"></div></div>
+  <p id="pfv" style="margin:8px 0 0;font-weight:700;color:var(--gd)"></p>
+  <div class="fs"><h3>Detail akun</h3><p class="nt">Opsional. Otomatis ikut terbawa saat diperpanjang.</p>
+  <label for="f-acc">Email / username</label><input class="f" id="f-acc" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="akun@email.com">
+  <div class="g2"><div><label for="f-pass">Password</label><input class="f" id="f-pass" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Password akun"></div><div><label for="f-prof">Profil / PIN</label><input class="f" id="f-prof" autocomplete="off" placeholder="Profil 2, PIN 1234"></div></div></div>
+  <label for="f-nt">Catatan</label><input class="f" id="f-nt" placeholder="Opsional">
+  <div class="bt" style="margin-top:16px"><button class="btn" id="save">Simpan</button><button class="btn o" id="cancel">Batal</button></div>
+</div></div>
+
+<div class="ov" id="m2" hidden><div class="box">
+  <h2 id="m2t"></h2>
+  <label for="e-n">Nama</label><input class="f" id="e-n">
+  <label for="e-c">Kontak / WhatsApp</label><input class="f" id="e-c" inputmode="tel">
+  <label for="e-t">Catatan</label><input class="f" id="e-t">
+  <div class="bt" style="margin-top:16px"><button class="btn" id="e-save">Simpan</button><button class="btn o" id="e-cancel">Batal</button></div>
+</div></div>
+
+<div class="ov" id="lg"><div class="box" style="text-align:center"><h2>🍀 lyra store</h2><p style="color:var(--mu);margin:0 0 12px">Login admin</p><input class="f" id="pw" type="password" placeholder="Password" autocomplete="current-password"><p id="pe" style="color:var(--pd);min-height:20px;margin:8px 0"></p><button class="btn" id="lgb">Masuk</button></div></div>
+<div id="pr"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const T=()=>iso(new Date());
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((new Date(a+'T00:00:00')-new Date(b+'T00:00:00'))/864e5);
+const fmt=s=>s?new Date(s+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'-';
+const mn=m=>new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+const rp=n=>(n<0?'-':'')+'Rp'+Math.abs(+n||0).toLocaleString('id-ID');
+const num=s=>+String(s).replace(/\D/g,'')||0;
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2200)};
+const DEFTPL='Halo kak {nama}, langganan {aplikasi} kakak akan berakhir pada {renew}. Mau lanjut perpanjang? Kabari aku ya ♡';
+const APPS=['Netflix','Canva','CapCut','Spotify','ChatGPT','YouTube Premium','Prime Video','Vidio','Disney+','Viu','WeTV','iQIYI','Loklok','HBO Max','Alight Motion','Zoom'];
+const NAV=[['dash','🏠','Dashboard'],['ord','📋','Order'],['rem','🔔','Reminder'],['cus','👥','Customer'],['sup','📦','Supplier'],['set','⚙️','Settings']];
+const LB={act:'Aktif',soon:'Segera renew',today:'Renew hari ini',exp:'Expired',done:'Diperpanjang'};
+let TOK=localStorage.getItem('lyra_t')||'',D={orders:[],customers:[],suppliers:[],tpl:DEFTPL},V='dash',F={q:'',app:''},P='',editId=null,ent=null,Q=Promise.resolve();
+const st=o=>{if(o.done)return'done';const d=diff(o.renew,T());return d<0?'exp':d===0?'today':d<=7?'soon':'act'};
+const pf=o=>(+o.price||0)-(+o.cost||0);
+const sum=(L,f)=>L.reduce((a,o)=>a+(+f(o)||0),0);
+const grp=(L,k)=>{const m={};L.forEach(o=>(m[o[k]||'-']=m[o[k]||'-']||[]).push(o));return m};
+const msg=o=>(D.tpl||DEFTPL).replace(/{nama}/g,o.cust||'kak').replace(/{aplikasi}/g,o.app).replace(/{renew}/g,fmt(o.renew));
+const hasAcc=o=>!!(o.acc||o.pass||o.prof);
+const accText=o=>[o.app,o.acc&&'Email/username: '+o.acc,o.pass&&'Password: '+o.pass,o.prof&&'Profil/PIN: '+o.prof].filter(Boolean).join('\n');
+const copy=async(t,m)=>{try{await navigator.clipboard.writeText(t);toast(m)}catch(x){toast('Gagal menyalin')}};
+const wa=(ph,t)=>{let p=(ph||'').replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);return 'https://wa.me/'+p+(t?'?text='+encodeURIComponent(t):'')};
+
+async function api(p,opt={}){
+  const r=await fetch('/api/'+p,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK}});
+  const j=await r.json().catch(()=>({}));
+  if(r.status===401&&p!=='login'){logout();throw 0}
+  if(!r.ok)throw new Error(j.error||('Error '+r.status));
+  return j;
+}
+const save=()=>{Q=Q.then(()=>api('db',{method:'PUT',body:JSON.stringify(D)})).catch(e=>{if(e)toast('Gagal menyimpan: '+e.message)})};
+function logout(){TOK='';localStorage.removeItem('lyra_t');$('#lg').hidden=false;$('#pw').value='';$('#pe').textContent=''}
+async function boot(){
+  if(!TOK){$('#lg').hidden=false;return}
+  try{const d=await api('db');D=Object.assign({orders:[],customers:[],suppliers:[],tpl:DEFTPL},d);$('#lg').hidden=true;render()}
+  catch(e){if(e){$('#lg').hidden=false;$('#pe').textContent=e.message}}
+}
+$('#lgb').onclick=async()=>{try{const j=await api('login',{method:'POST',body:JSON.stringify({password:$('#pw').value})});TOK=j.token;localStorage.setItem('lyra_t',TOK);boot()}catch(e){$('#pe').textContent=(e&&e.message)||'Gagal login'}};
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#lgb').click()};
+
+function accBox(o){
+  if(!hasAcc(o))return'';
+  const row=(l,v,b)=>`<div class="akr"><span>${l}</span>${v}<span class="akb">${b}</span></div>`;
+  return `<div class="ak"><div class="akh"><span>Detail akun</span><button class="lk" data-a="cpall">Salin semua</button></div>
+  ${o.acc?row('Email',`<b>${esc(o.acc)}</b>`,'<button class="lk" data-a="cp" data-k="acc">Salin</button>'):''}
+  ${o.pass?row('Password','<b class="pw">••••••••</b>','<button class="lk" data-a="show">Lihat</button><button class="lk" data-a="cp" data-k="pass">Salin</button>'):''}
+  ${o.prof?row('Profil/PIN',`<b>${esc(o.prof)}</b>`,'<button class="lk" data-a="cp" data-k="prof">Salin</button>'):''}</div>`;
+}
+function card(o,btns){
+  const d=diff(o.renew,T()),s=st(o);
+  return `<article class="oc" data-id="${o.id}"><div class="r1"><b>${esc(o.app)}</b><span class="chip ${s}">${LB[s]}</span></div>
+  <div class="r2">${esc(o.cust||'Tanpa nama')}${o.sup?' · Supplier: '+esc(o.sup):''}</div>
+  <div class="dt"><span>Tanggal order<br><b>${fmt(o.order)}</b></span><span>Tanggal renew<br><b>${fmt(o.renew)}</b></span>
+  <span class="w">${o.done?'Sudah diperpanjang':d<0?Math.abs(d)+' hari lewat':d===0?'Renew hari ini':d+' hari lagi'}</span>
+  <span>Jual ${rp(o.price)}<br>Modal ${rp(o.cost)}</span><span class="pf">Profit<br>${rp(pf(o))}</span></div>
+  ${accBox(o)}${o.note?`<p class="nt">${esc(o.note)}</p>`:''}<div class="bt">${btns}</div></article>`;
+}
+const ordBtns='<button class="btn o s" data-a="edit">Ubah</button><button class="btn o s" data-a="del">Hapus</button>';
+const remBtns=o=>`<button class="btn s" data-a="copy">Salin pesan</button>${o.phone?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${wa(o.phone,msg(o))}">WhatsApp</a>`:''}<button class="btn o s" data-a="renew">Perpanjang +${o.dur||30}h</button><button class="btn o s" data-a="edit">Ubah</button>`;
+const empty=(t,b)=>`<div class="empty">${t}${b?`<br><br><button class="btn" data-a="new">${b}</button>`:''}</div>`;
+const stat=(L)=>L.map(x=>`<div class="st"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+
+const VIEWS={
+dash(){
+  const months=[...new Set(D.orders.map(o=>o.order.slice(0,7)))].sort().reverse();
+  const L=D.orders.filter(o=>!P||o.order.startsWith(P)),om=sum(L,o=>o.price),mo=sum(L,o=>o.cost),pr=om-mo;
+  const live=D.orders.filter(o=>!o.done),c=k=>live.filter(o=>st(o)===k).length;
+  const apps=Object.entries(grp(L,'app')).map(([a,l])=>[a,l.length,sum(l,o=>o.price),sum(l,pf)]).sort((a,b)=>b[3]-a[3]);
+  return `<div class="fb"><select class="f" id="per"><option value="">Semua periode</option>${months.map(m=>`<option value="${m}" ${P===m?'selected':''}>${mn(m)}</option>`).join('')}</select></div>
+  <div class="stats">${stat([['Omzet',rp(om)],['Modal',rp(mo)],['Profit',rp(pr)],['Margin',om?Math.round(pr/om*100)+'%':'0%'],['Total Order',L.length],['Order Aktif',live.length-c('exp')],['Segera Renew',c('soon')+c('today')],['Expired',c('exp')]])}</div>`+
+  (D.orders.length?`<h2>Per aplikasi</h2><div class="panel">${apps.map(a=>`<div class="row"><span><b>${esc(a[0])}</b> · ${a[1]} order</span><span>Omzet ${rp(a[2])} · <b style="color:var(--gd)">${rp(a[3])}</b></span></div>`).join('')||'-'}</div>`:empty('your little order book is empty ♡','Buat order pertama'));
+},
+ord(){
+  const apps=[...new Set(D.orders.map(o=>o.app))].sort(),q=F.q.toLowerCase();
+  const L=D.orders.filter(o=>(!F.app||o.app===F.app)&&(!q||(o.app+' '+(o.cust||'')+' '+(o.sup||'')+' '+(o.note||'')+' '+(o.acc||'')).toLowerCase().includes(q))).sort((a,b)=>a.order<b.order?1:-1);
+  return `<div class="fb"><input class="f" id="q" type="search" placeholder="Cari aplikasi, customer, email akun" value="${esc(F.q)}"><select class="f" id="fa"><option value="">Semua aplikasi</option>${apps.map(a=>`<option ${F.app===a?'selected':''}>${esc(a)}</option>`).join('')}</select></div>`+
+  (L.length?`<div class="list">${L.map(o=>card(o,ordBtns)).join('')}</div>`:empty(D.orders.length?'Tidak ada order yang cocok.':'Belum ada order.',D.orders.length?'':'Buat order pertama'));
+},
+rem(){
+  const L=D.orders.filter(o=>!o.done&&st(o)!=='act').sort((a,b)=>a.renew<b.renew?-1:1);
+  return L.length?`<div class="list">${L.map(o=>card(o,remBtns(o))).join('')}</div>`:empty('Tidak ada yang perlu diingatkan ♡');
+},
+cus(){
+  return D.customers.length?`<div class="list">${D.customers.map(c=>{const l=D.orders.filter(o=>(o.cust||'').toLowerCase()===c.name.toLowerCase());
+  return `<article class="oc" data-id="${c.id}"><div class="r1"><b>${esc(c.name)}</b><span class="chip act">${l.length} order</span></div><div class="r2">${esc(c.phone||'Tanpa kontak')}${c.note?' · '+esc(c.note):''}</div><div class="dt"><span>Total belanja<br><b>${rp(sum(l,o=>o.price))}</b></span><span>Profit<br><b>${rp(sum(l,pf))}</b></span></div><div class="bt"><button class="btn o s" data-a="eent">Ubah</button><button class="btn o s" data-a="dent">Hapus</button>${c.phone?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${wa(c.phone)}">WhatsApp</a>`:''}</div></article>`}).join('')}</div>`:empty('Belum ada customer. Customer otomatis tersimpan dari order.','');
+},
+sup(){
+  return D.suppliers.length?`<div class="list">${D.suppliers.map(s=>{const l=D.orders.filter(o=>(o.sup||'').toLowerCase()===s.name.toLowerCase());
+  return `<article class="oc" data-id="${s.id}"><div class="r1"><b>${esc(s.name)}</b><span class="chip act">${l.length} order</span></div><div class="r2">${esc(s.phone||'Tanpa kontak')}${s.note?' · '+esc(s.note):''}</div><div class="dt"><span>Total modal<br><b>${rp(sum(l,o=>o.cost))}</b></span><span>Profit dari supplier ini<br><b>${rp(sum(l,pf))}</b></span></div><div class="bt"><button class="btn o s" data-a="eent">Ubah</button><button class="btn o s" data-a="dent">Hapus</button>${s.phone?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${wa(s.phone)}">WhatsApp</a>`:''}</div></article>`}).join('')}</div>`:empty('Belum ada supplier.','Tambah supplier');
+},
+set(){return `<div class="panel"><h2>Template reminder</h2><p class="nt">Pakai {nama}, {aplikasi}, {renew}.</p><textarea class="f" id="tpl" rows="3">${esc(D.tpl)}</textarea></div>
+<div class="panel"><h2>Export</h2><p class="nt">Excel berisi sheet Order, Customer, dan Supplier. PDF memakai fitur cetak: pilih Simpan sebagai PDF. Detail akun hanya ikut di Cadangan JSON, jadi simpan file itu di tempat aman dan jangan dibagikan.</p><div class="bt"><button class="btn s" data-a="xl">Export Excel</button><button class="btn o s" data-a="pdf">Export PDF</button><button class="btn o s" data-a="json">Cadangan JSON</button></div></div>
+<div class="panel"><h2>Akun</h2><p class="nt">Password admin diatur di Netlify (variabel ADMIN_PASSWORD).</p><div class="bt"><button class="btn o s" data-a="out">Keluar</button></div></div>`}
+};
+function render(){
+  $('#nav').innerHTML=NAV.map(n=>`<button class="nb ${V===n[0]?'on':''}" data-v="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`).join('');
+  $('#ttl').textContent=NAV.find(n=>n[0]===V)[2]+(V==='dash'?' 🌷':'');
+  $('#add').hidden=V==='set';$('#add').textContent=V==='cus'?'+ Customer':V==='sup'?'+ Supplier':'+ Tambah Order';
+  $('#v').innerHTML=VIEWS[V]();
+  $('#apps').innerHTML=[...new Set([...APPS,...D.orders.map(o=>o.app)])].map(a=>`<option value="${esc(a)}">`).join('');
+  $('#cl').innerHTML=D.customers.map(c=>`<option value="${esc(c.name)}">`).join('');
+}
+const calc=()=>{const o=$('#f-ord').value;if(o)$('#f-ren').value=addDays(o,+$('#f-dur').value)};
+const pfv=()=>{$('#pfv').textContent='Profit: '+rp(num($('#f-pr').value)-num($('#f-co').value))};
+function openForm(o){
+  editId=o?o.id:null;$('#mt').textContent=o?'Ubah Order':'Tambah Order';
+  $('#f-sup').innerHTML='<option value="">(tanpa supplier)</option>'+D.suppliers.map(s=>`<option ${o&&o.sup===s.name?'selected':''}>${esc(s.name)}</option>`).join('');
+  $('#f-app').value=o?o.app:'';$('#f-cus').value=o?o.cust||'':'';$('#f-ph').value=o?o.phone||'':'';
+  $('#f-ord').value=o?o.order:T();$('#f-dur').value=o?String(o.dur||30):'30';$('#f-ren').value=o?o.renew:addDays(T(),30);
+  $('#f-pr').value=o?o.price||'':'';$('#f-co').value=o?o.cost||'':'';$('#f-nt').value=o?o.note||'':'';
+  $('#f-acc').value=o?o.acc||'':'';$('#f-pass').value=o?o.pass||'':'';$('#f-prof').value=o?o.prof||'':'';pfv();$('#md').hidden=false;$('#f-app').focus();
+}
+function fillAcc(){
+  if(editId||$('#f-acc').value||$('#f-pass').value||$('#f-prof').value)return;
+  const a=$('#f-app').value.trim().toLowerCase(),c=$('#f-cus').value.trim().toLowerCase();if(!a||!c)return;
+  const p=D.orders.filter(o=>hasAcc(o)&&o.app.toLowerCase()===a&&(o.cust||'').toLowerCase()===c).sort((x,y)=>x.order<y.order?1:-1)[0];
+  if(p){$('#f-acc').value=p.acc||'';$('#f-pass').value=p.pass||'';$('#f-prof').value=p.prof||'';toast('Detail akun terakhir terisi otomatis')}
+}
+$('#f-app').onchange=fillAcc;
+['f-ord','f-dur'].forEach(i=>$('#'+i).onchange=calc);['f-pr','f-co'].forEach(i=>$('#'+i).oninput=pfv);
+$('#f-cus').onchange=()=>{const c=D.customers.find(c=>c.name.toLowerCase()===$('#f-cus').value.trim().toLowerCase());if(c&&c.phone&&!$('#f-ph').value)$('#f-ph').value=c.phone;fillAcc()};
+$('#cancel').onclick=()=>$('#md').hidden=true;
+$('#save').onclick=()=>{
+  const app=$('#f-app').value.trim(),ord=$('#f-ord').value,ren=$('#f-ren').value;
+  if(!app||!ord||!ren)return toast('Isi aplikasi, tanggal order, dan tanggal renew');
+  const d={app,order:ord,renew:ren,dur:+$('#f-dur').value,cust:$('#f-cus').value.trim(),phone:$('#f-ph').value.trim(),sup:$('#f-sup').value,price:num($('#f-pr').value),cost:num($('#f-co').value),note:$('#f-nt').value.trim(),acc:$('#f-acc').value.trim(),pass:$('#f-pass').value.trim(),prof:$('#f-prof').value.trim()};
+  if(editId)Object.assign(D.orders.find(o=>o.id===editId),d);else D.orders.push({id:uid(),done:false,...d});
+  if(d.cust){const c=D.customers.find(c=>c.name.toLowerCase()===d.cust.toLowerCase());if(!c)D.customers.push({id:uid(),name:d.cust,phone:d.phone,note:''});else if(!c.phone&&d.phone)c.phone=d.phone}
+  save();$('#md').hidden=true;render();toast('Tersimpan');
+};
+function openEnt(kind,x){ent={kind,id:x&&x.id};$('#m2t').textContent=(x?'Ubah ':'Tambah ')+(kind==='cus'?'Customer':'Supplier');$('#e-n').value=x?x.name:'';$('#e-c').value=x?x.phone||'':'';$('#e-t').value=x?x.note||'':'';$('#m2').hidden=false;$('#e-n').focus()}
+$('#e-cancel').onclick=()=>$('#m2').hidden=true;
+$('#e-save').onclick=()=>{
+  const n=$('#e-n').value.trim();if(!n)return toast('Isi nama');
+  const A=ent.kind==='cus'?D.customers:D.suppliers,d={name:n,phone:$('#e-c').value.trim(),note:$('#e-t').value.trim()};
+  if(ent.id)Object.assign(A.find(x=>x.id===ent.id),d);else A.push({id:uid(),...d});
+  save();$('#m2').hidden=true;render();toast('Tersimpan');
+};
+$('#add').onclick=()=>V==='cus'||V==='sup'?openEnt(V):openForm();
+$('#nav').onclick=e=>{const b=e.target.closest('[data-v]');if(b){V=b.dataset.v;render();window.scrollTo(0,0)}};
+$('#v').oninput=e=>{if(e.target.id==='q'){F.q=e.target.value;const p=e.target.selectionStart;render();const q=$('#q');q.focus();q.setSelectionRange(p,p)}};
+$('#v').onchange=e=>{const i=e.target.id;if(i==='fa'){F.app=e.target.value;render()}if(i==='per'){P=e.target.value;render()}if(i==='tpl'){D.tpl=e.target.value;save();toast('Template tersimpan')}};
+
+function xl(){
+  if(!window.XLSX)return toast('Library Excel belum termuat, coba lagi');
+  const wb=XLSX.utils.book_new(),add=(r,n)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),n);
+  add(D.orders.map(o=>({'Tanggal Order':o.order,'Tanggal Renew':o.renew,Aplikasi:o.app,Customer:o.cust,Supplier:o.sup,'Harga Jual':+o.price||0,Modal:+o.cost||0,Profit:pf(o),Status:LB[st(o)],Catatan:o.note})),'Order');
+  add(D.customers.map(c=>{const l=D.orders.filter(o=>(o.cust||'').toLowerCase()===c.name.toLowerCase());return{Nama:c.name,WhatsApp:c.phone,Catatan:c.note,Order:l.length,'Total Belanja':sum(l,o=>o.price),Profit:sum(l,pf)}}),'Customer');
+  add(D.suppliers.map(s=>{const l=D.orders.filter(o=>(o.sup||'').toLowerCase()===s.name.toLowerCase());return{Nama:s.name,Kontak:s.phone,Catatan:s.note,Order:l.length,'Total Modal':sum(l,o=>o.cost)}}),'Supplier');
+  XLSX.writeFile(wb,'lyra-store-rekap-'+T()+'.xlsx');
+}
+function pdf(){
+  const L=[...D.orders].sort((a,b)=>a.order<b.order?-1:1);
+  $('#pr').innerHTML=`<h2>lyra store - Rekap Order (${fmt(T())})</h2><table><tr><th>Tgl Order</th><th>Tgl Renew</th><th>Aplikasi</th><th>Customer</th><th>Supplier</th><th>Jual</th><th>Modal</th><th>Profit</th></tr>${L.map(o=>`<tr><td>${fmt(o.order)}</td><td>${fmt(o.renew)}</td><td>${esc(o.app)}</td><td>${esc(o.cust)}</td><td>${esc(o.sup)}</td><td>${rp(o.price)}</td><td>${rp(o.cost)}</td><td>${rp(pf(o))}</td></tr>`).join('')}<tr><th colspan="5">Total</th><th>${rp(sum(L,o=>o.price))}</th><th>${rp(sum(L,o=>o.cost))}</th><th>${rp(sum(L,pf))}</th></tr></table>`;
+  window.print();
+}
+$('#v').onclick=async e=>{
+  const a=e.target.closest('[data-a]');if(!a)return;const k=a.dataset.a,cd=a.closest('.oc'),id=cd&&cd.dataset.id,o=D.orders.find(x=>x.id===id);
+  if(k==='new')V==='sup'||V==='cus'?openEnt(V):openForm();
+  else if(k==='edit')openForm(o);
+  else if(k==='del'){if(confirm('Hapus order '+o.app+'?')){D.orders=D.orders.filter(x=>x!==o);save();render()}}
+  else if(k==='copy')copy(msg(o),'Pesan disalin');
+  else if(k==='cp')copy(o[a.dataset.k],'Disalin');
+  else if(k==='cpall')copy(accText(o),'Detail akun disalin');
+  else if(k==='show'){const p=cd.querySelector('.pw'),on=a.textContent==='Lihat';p.textContent=on?o.pass:'••••••••';a.textContent=on?'Tutup':'Lihat'}
+  else if(k==='renew'){const b=o.renew>=T()?o.renew:T();D.orders.push({...o,id:uid(),done:false,order:T(),renew:addDays(b,o.dur||30)});o.done=true;save();render();toast(hasAcc(o)?'Diperpanjang, detail akun ikut terbawa':'Order baru dibuat untuk perpanjangan')}
+  else if(k==='eent')openEnt(V,(V==='cus'?D.customers:D.suppliers).find(x=>x.id===id));
+  else if(k==='dent'){if(confirm('Hapus data ini? Order lama tidak ikut terhapus.')){const A=V==='cus'?'customers':'suppliers';D[A]=D[A].filter(x=>x.id!==id);save();render()}}
+  else if(k==='xl')xl();
+  else if(k==='pdf')pdf();
+  else if(k==='json'){const b=new Blob([JSON.stringify(D)],{type:'application/json'}),l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='lyra-store-backup-'+T()+'.json';l.click();setTimeout(()=>URL.revokeObjectURL(l.href),1e3)}
+  else if(k==='out')logout();
+};
+boot();
+</script>
+</body>
+</html>
