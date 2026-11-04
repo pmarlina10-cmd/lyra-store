@@ -97,6 +97,7 @@ main{padding:calc(14px + env(safe-area-inset-top,0px)) 14px 100px}
   <h2 id="m2t"></h2>
   <label for="e-n">Nama</label><input class="f" id="e-n">
   <label for="e-c">Kontak / WhatsApp</label><input class="f" id="e-c" inputmode="tel">
+  <div id="e-tgw"><label for="e-tg">Telegram</label><input class="f" id="e-tg" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@username atau no. HP"></div>
   <label for="e-t">Catatan</label><input class="f" id="e-t">
   <div class="bt" style="margin-top:16px"><button class="btn" id="e-save">Simpan</button><button class="btn o" id="e-cancel">Batal</button></div>
 </div></div>
@@ -132,6 +133,9 @@ const hasAcc=o=>!!(o.acc||o.pass||o.prof);
 const accText=o=>[o.app,o.acc&&'Email/username: '+o.acc,o.pass&&'Password: '+o.pass,o.prof&&'Profil/PIN: '+o.prof].filter(Boolean).join('\n');
 const copy=async(t,m)=>{try{await navigator.clipboard.writeText(t);toast(m)}catch(x){toast('Gagal menyalin')}};
 const wa=(ph,t)=>{let p=(ph||'').replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);return 'https://wa.me/'+p+(t?'?text='+encodeURIComponent(t):'')};
+const tgId=s=>{const t=String(s||'').trim().replace(/^(https?:\/\/)?(www\.)?(t|telegram)\.me\//i,'').replace(/^@/,'').replace(/[/?#].*$/,''),d=t.replace(/[\s\-()]/g,'');if(/^\+?\d{6,15}$/.test(d))return '+'+d.replace(/^\+/,'').replace(/^0/,'62');return /^[A-Za-z][A-Za-z0-9_]{3,31}$/.test(t)?t:''};
+const tgUrl=id=>'https://t.me/'+id;
+const tgShow=id=>id[0]==='+'?id:'@'+id;
 
 async function api(p,opt={}){
   const r=await fetch('/api/'+p,{...opt,headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOK}});
@@ -198,7 +202,7 @@ cus(){
 },
 sup(){
   return D.suppliers.length?`<div class="list">${D.suppliers.map(s=>{const l=D.orders.filter(o=>(o.sup||'').toLowerCase()===s.name.toLowerCase());
-  return `<article class="oc" data-id="${s.id}"><div class="r1"><b>${esc(s.name)}</b><span class="chip act">${l.length} order</span></div><div class="r2">${esc(s.phone||'Tanpa kontak')}${s.note?' · '+esc(s.note):''}</div><div class="dt"><span>Total modal<br><b>${rp(sum(l,o=>o.cost))}</b></span><span>Profit dari supplier ini<br><b>${rp(sum(l,pf))}</b></span></div><div class="bt"><button class="btn o s" data-a="eent">Ubah</button><button class="btn o s" data-a="dent">Hapus</button>${s.phone?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${wa(s.phone)}">WhatsApp</a>`:''}</div></article>`}).join('')}</div>`:empty('Belum ada supplier.','Tambah supplier');
+  return `<article class="oc" data-id="${s.id}"><div class="r1"><b>${esc(s.name)}</b><span class="chip act">${l.length} order</span></div><div class="r2">${esc([s.phone,s.tg&&tgShow(s.tg)].filter(Boolean).join(' · ')||'Tanpa kontak')}${s.note?' · '+esc(s.note):''}</div><div class="dt"><span>Total modal<br><b>${rp(sum(l,o=>o.cost))}</b></span><span>Profit dari supplier ini<br><b>${rp(sum(l,pf))}</b></span></div><div class="bt"><button class="btn o s" data-a="eent">Ubah</button><button class="btn o s" data-a="dent">Hapus</button>${s.phone?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${wa(s.phone)}">WhatsApp</a>`:''}${s.tg?`<a class="btn g s" style="text-decoration:none" target="_blank" rel="noopener" href="${esc(tgUrl(s.tg))}">Telegram</a>`:''}</div></article>`}).join('')}</div>`:empty('Belum ada supplier.','Tambah supplier');
 },
 set(){return `<div class="panel"><h2>Template reminder</h2><p class="nt">Pakai {nama}, {aplikasi}, {renew}.</p><textarea class="f" id="tpl" rows="3">${esc(D.tpl)}</textarea></div>
 <div class="panel"><h2>Export</h2><p class="nt">Excel berisi sheet Order, Customer, dan Supplier. PDF memakai fitur cetak: pilih Simpan sebagai PDF. Detail akun hanya ikut di Cadangan JSON, jadi simpan file itu di tempat aman dan jangan dibagikan.</p><div class="bt"><button class="btn s" data-a="xl">Export Excel</button><button class="btn o s" data-a="pdf">Export PDF</button><button class="btn o s" data-a="json">Cadangan JSON</button></div></div>
@@ -240,11 +244,12 @@ $('#save').onclick=()=>{
   if(d.cust){const c=D.customers.find(c=>c.name.toLowerCase()===d.cust.toLowerCase());if(!c)D.customers.push({id:uid(),name:d.cust,phone:d.phone,note:''});else if(!c.phone&&d.phone)c.phone=d.phone}
   save();$('#md').hidden=true;render();toast('Tersimpan');
 };
-function openEnt(kind,x){ent={kind,id:x&&x.id};$('#m2t').textContent=(x?'Ubah ':'Tambah ')+(kind==='cus'?'Customer':'Supplier');$('#e-n').value=x?x.name:'';$('#e-c').value=x?x.phone||'':'';$('#e-t').value=x?x.note||'':'';$('#m2').hidden=false;$('#e-n').focus()}
+function openEnt(kind,x){ent={kind,id:x&&x.id};$('#m2t').textContent=(x?'Ubah ':'Tambah ')+(kind==='cus'?'Customer':'Supplier');$('#e-n').value=x?x.name:'';$('#e-c').value=x?x.phone||'':'';$('#e-t').value=x?x.note||'':'';$('#e-tgw').hidden=kind!=='sup';$('#e-tg').value=x?x.tg||'':'';$('#m2').hidden=false;$('#e-n').focus()}
 $('#e-cancel').onclick=()=>$('#m2').hidden=true;
 $('#e-save').onclick=()=>{
   const n=$('#e-n').value.trim();if(!n)return toast('Isi nama');
   const A=ent.kind==='cus'?D.customers:D.suppliers,d={name:n,phone:$('#e-c').value.trim(),note:$('#e-t').value.trim()};
+  if(ent.kind==='sup'){const r=$('#e-tg').value.trim(),g=tgId(r);if(r&&!g)return toast('Telegram belum benar, contoh @username');d.tg=g}
   if(ent.id)Object.assign(A.find(x=>x.id===ent.id),d);else A.push({id:uid(),...d});
   save();$('#m2').hidden=true;render();toast('Tersimpan');
 };
@@ -258,7 +263,7 @@ function xl(){
   const wb=XLSX.utils.book_new(),add=(r,n)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),n);
   add(D.orders.map(o=>({'Tanggal Order':o.order,'Tanggal Renew':o.renew,Aplikasi:o.app,Customer:o.cust,Supplier:o.sup,'Harga Jual':+o.price||0,Modal:+o.cost||0,Profit:pf(o),Status:LB[st(o)],Catatan:o.note})),'Order');
   add(D.customers.map(c=>{const l=D.orders.filter(o=>(o.cust||'').toLowerCase()===c.name.toLowerCase());return{Nama:c.name,WhatsApp:c.phone,Catatan:c.note,Order:l.length,'Total Belanja':sum(l,o=>o.price),Profit:sum(l,pf)}}),'Customer');
-  add(D.suppliers.map(s=>{const l=D.orders.filter(o=>(o.sup||'').toLowerCase()===s.name.toLowerCase());return{Nama:s.name,Kontak:s.phone,Catatan:s.note,Order:l.length,'Total Modal':sum(l,o=>o.cost)}}),'Supplier');
+  add(D.suppliers.map(s=>{const l=D.orders.filter(o=>(o.sup||'').toLowerCase()===s.name.toLowerCase());return{Nama:s.name,Kontak:s.phone,Telegram:s.tg?tgShow(s.tg):'',Catatan:s.note,Order:l.length,'Total Modal':sum(l,o=>o.cost)}}),'Supplier');
   XLSX.writeFile(wb,'lyra-store-rekap-'+T()+'.xlsx');
 }
 function pdf(){
